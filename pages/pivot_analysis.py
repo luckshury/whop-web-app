@@ -710,8 +710,9 @@ if analyze_button:
         df = None
         days_in_range = (end_date - start_date).days
         
-        # Try Supabase first if available
-        if SUPABASE_AVAILABLE and exchange == "Bybit":
+        # TEMPORARILY DISABLED: Try Supabase first if available
+        # TODO: Re-enable once we fix the today's data fetch issue
+        if False and SUPABASE_AVAILABLE and exchange == "Bybit":
             # Check if data is available in Supabase
             data_check = check_data_availability(ticker)
             
