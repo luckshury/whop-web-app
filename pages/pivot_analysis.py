@@ -723,12 +723,20 @@ if analyze_button:
                         st.success(f"✨ Loaded {len(df):,} candles from cache - instant load!")
                         
                         # Fetch today's data from Bybit API for real-time P1/P2
-                        today_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-                        today_end = datetime.now(timezone.utc)
+                        # Fetch last 2 days to ensure we get today's data
+                        fetch_start = datetime.now(timezone.utc) - timedelta(days=2)
+                        fetch_end = datetime.now(timezone.utc)
                         
                         try:
                             with st.spinner("📡 Fetching today's live data for P1/P2..."):
-                                todays_df = fetch_bybit_data(ticker, "15", today_utc, today_end, category, None)
+                                recent_df = fetch_bybit_data(ticker, "15", fetch_start, fetch_end, category, None)
+                                
+                                # Filter to only today's data from the fetch
+                                if recent_df is not None and not recent_df.empty:
+                                    today_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+                                    todays_df = recent_df[recent_df['start_time'] >= today_utc]
+                                else:
+                                    todays_df = None
                                 
                                 if todays_df is not None and not todays_df.empty:
                                     # Remove any overlapping data from cache
