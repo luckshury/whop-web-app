@@ -150,12 +150,6 @@ def require_authentication():
     
     if not has_access:
         # Show subscription required page
-        st.set_page_config(
-            page_title="Subscription Required",
-            page_icon="🔒",
-            layout="centered"
-        )
-        
         st.title("🔒 Subscription Required")
         st.markdown("""
         ### Access to Pivot Analysis requires an active subscription
