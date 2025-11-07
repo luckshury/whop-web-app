@@ -4,4 +4,3 @@ pandas>=2.0.0
 plotly>=5.17.0
 supabase>=2.0.0
 python-dotenv>=1.0.0
-whop-sdk>=0.1.0
