@@ -726,16 +726,21 @@ if analyze_button:
                         today_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
                         today_end = datetime.now(timezone.utc)
                         
-                        with st.spinner("📡 Fetching today's live data for P1/P2..."):
-                            todays_df = fetch_bybit_data(ticker, "15", today_utc, today_end, category, None)
-                            
-                            if todays_df is not None and not todays_df.empty:
-                                # Remove any overlapping data from cache
-                                df = df[df['start_time'] < today_utc]
-                                # Append today's fresh data
-                                df = pd.concat([df, todays_df], ignore_index=True)
-                                df = df.sort_values('start_time').reset_index(drop=True)
-                                st.info(f"✅ Added {len(todays_df)} live candles for today")
+                        try:
+                            with st.spinner("📡 Fetching today's live data for P1/P2..."):
+                                todays_df = fetch_bybit_data(ticker, "15", today_utc, today_end, category, None)
+                                
+                                if todays_df is not None and not todays_df.empty:
+                                    # Remove any overlapping data from cache
+                                    df = df[df['start_time'] < today_utc]
+                                    # Append today's fresh data
+                                    df = pd.concat([df, todays_df], ignore_index=True)
+                                    df = df.sort_values('start_time').reset_index(drop=True)
+                                    st.success(f"✅ Added {len(todays_df)} live candles for today")
+                                else:
+                                    st.warning("⚠️ Could not fetch today's live data - P1/P2 may not be available yet")
+                        except Exception as e:
+                            st.error(f"Error fetching today's data: {str(e)}")
         
         # Fallback to direct API if Supabase not available or no data
         if df is None or (df is not None and df.empty):
