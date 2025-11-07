@@ -10,15 +10,26 @@ from datetime import datetime, timedelta, timezone, date
 from supabase import create_client, Client
 from typing import Optional, Tuple, List
 
+def get_env(key: str, default: str = '') -> str:
+    """Get environment variable from Streamlit secrets or os.environ"""
+    try:
+        # Try Streamlit secrets first (for Cloud deployment)
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return str(st.secrets[key])
+    except:
+        pass
+    # Fall back to environment variables (for local development)
+    return os.getenv(key, default)
+
 # Initialize Supabase client
 @st.cache_resource
 def get_supabase_client() -> Client:
     """Get or create Supabase client (cached)"""
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_ANON_KEY")  # Use anon key for read-only
+    supabase_url = get_env("SUPABASE_URL")
+    supabase_key = get_env("SUPABASE_SERVICE_KEY")
     
     if not supabase_url or not supabase_key:
-        st.error("⚠️ Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_ANON_KEY.")
+        st.error("⚠️ Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_KEY.")
         return None
     
     return create_client(supabase_url, supabase_key)
@@ -242,5 +253,5 @@ def check_data_availability(ticker: str) -> dict:
 
 def is_supabase_enabled() -> bool:
     """Check if Supabase is properly configured"""
-    return bool(os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_ANON_KEY"))
+    return bool(get_env("SUPABASE_URL") and get_env("SUPABASE_SERVICE_KEY"))
 

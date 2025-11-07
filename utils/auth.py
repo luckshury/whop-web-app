@@ -10,9 +10,20 @@ import requests
 from typing import Optional, Tuple, Dict
 import json
 
+def get_env(key: str, default: str = '') -> str:
+    """Get environment variable from Streamlit secrets or os.environ"""
+    try:
+        # Try Streamlit secrets first (for Cloud deployment)
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return str(st.secrets[key])
+    except:
+        pass
+    # Fall back to environment variables (for local development)
+    return os.getenv(key, default)
+
 def is_dev_mode() -> bool:
     """Check if running in development mode"""
-    return os.getenv('DEV_MODE', 'True').lower() == 'true'
+    return get_env('DEV_MODE', 'True').lower() == 'true'
 
 def is_iframe_context() -> bool:
     """Check if running inside Whop iframe"""
@@ -30,7 +41,7 @@ def validate_whop_membership(user_id: str) -> Tuple[bool, Optional[Dict]]:
         Tuple of (is_valid: bool, user_data: dict or None)
     """
     try:
-        api_key = os.getenv('WHOP_API_KEY')
+        api_key = get_env('WHOP_API_KEY')
         if not api_key:
             return False, None
         
@@ -168,7 +179,7 @@ def require_authentication():
         """)
         
         # Get checkout URL from environment
-        checkout_url = os.getenv('WHOP_CHECKOUT_URL', 'https://whop.com')
+        checkout_url = get_env('WHOP_CHECKOUT_URL', 'https://whop.com')
         
         st.markdown(f"""
         <div style="text-align: center; margin: 2rem 0;">
