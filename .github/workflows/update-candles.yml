@@ -1,0 +1,41 @@
+name: Update Candle Data
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install requests python-dotenv supabase
+      
+      - name: Update candle data
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python scripts/update_candles.py --all
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "⚠️ Candle update failed at $(date)"
+          # Optionally add Slack/Discord notification here
+
