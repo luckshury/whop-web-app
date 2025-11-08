@@ -766,7 +766,20 @@ if analyze_button:
                     progress_bar.empty()
                     
                     if df is None or df.empty:
-                        st.warning("No data returned. Please check your parameters.")
+                        st.error("❌ No data returned from Bybit API")
+                        st.error("Possible issues:")
+                        st.error("- Ticker symbol might be wrong (try BTCUSDT)")
+                        st.error("- Bybit API might be rate limiting")
+                        st.error("- Network connection issue")
+                        
+                        # Try a simple test request
+                        try:
+                            test_response = requests.get("https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=15&limit=1")
+                            st.info(f"Test API status: {test_response.status_code}")
+                            st.code(test_response.text[:500])
+                        except Exception as e:
+                            st.error(f"Test request failed: {str(e)}")
+                        
                         st.session_state.pivot_data = build_empty_pivot_table()
                         st.session_state.pivot_stats = {"days_analyzed": 0}
                 elif exchange == "Hyperliquid":
