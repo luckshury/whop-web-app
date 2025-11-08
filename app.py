@@ -58,8 +58,18 @@ st.markdown(f"""
         button[kind="header"] {{
             display: none !important;
         }}
-        /* Make toolbar seamless */
+        /* Make toolbar/deploy button area seamless */
         [data-testid="stToolbar"] {{
+            background-color: #111 !important;
+        }}
+        [data-testid="stStatusWidget"] {{
+            background-color: #111 !important;
+        }}
+        [data-testid="stDecoration"] {{
+            background-color: #111 !important;
+        }}
+        /* Force header children */
+        header * {{
             background-color: #111 !important;
         }}
         /* Force main content area */
