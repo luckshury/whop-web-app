@@ -308,8 +308,6 @@ def get_todays_pivots(kline_data, current_utc_time):
 
 # Sidebar with input fields
 with st.sidebar:
-    st.header("⚙️ Settings")
-    
     # Get index for saved exchange
     exchange_options = ["Bybit", "Hyperliquid"]
     saved_exchange_index = 0
