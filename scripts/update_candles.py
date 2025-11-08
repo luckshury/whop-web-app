@@ -117,10 +117,15 @@ def update_symbol(symbol):
     # Get latest timestamp
     latest = get_latest_timestamp(symbol)
     
+    # Always ensure we have data from at least midnight today
+    today_midnight = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    
     if latest:
-        since_time = latest - timedelta(minutes=30)  # Fetch with overlap
+        # Fetch from the earlier of: latest timestamp or midnight today
+        since_time = min(latest - timedelta(minutes=30), today_midnight)
     else:
-        since_time = datetime.now(timezone.utc) - timedelta(hours=2)
+        # If no data, fetch from midnight today
+        since_time = today_midnight
     
     # Fetch latest candles
     klines = fetch_latest_candles(symbol, since_time)
