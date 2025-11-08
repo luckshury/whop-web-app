@@ -30,7 +30,7 @@ def is_iframe_context() -> bool:
     # Check for iframe-specific headers or parameters
     return st.query_params.get('whop_iframe') == 'true' or st.query_params.get('experience_id') is not None
 
-def validate_whop_membership(user_id: str) -> Tuple[bool, Optional[Dict]]:
+def validate_whop_membership(user_id: str, experience_id: Optional[str] = None) -> Tuple[bool, Optional[Dict]]:
     """
     Validate if a user has an active Whop membership
     
@@ -43,7 +43,12 @@ def validate_whop_membership(user_id: str) -> Tuple[bool, Optional[Dict]]:
     try:
         api_key = get_env('WHOP_API_KEY')
         if not api_key:
+            st.warning("⚠️ Whop API key not configured.")
             return False, None
+        
+        base_url = get_env("WHOP_API_BASE", "https://api.whop.com")
+        app_id = get_env("WHOP_APP_ID") or get_env("NEXT_PUBLIC_WHOP_APP_ID")
+        company_id = get_env("WHOP_COMPANY_ID")
         
         # Whop API endpoint to validate membership
         headers = {
@@ -51,30 +56,57 @@ def validate_whop_membership(user_id: str) -> Tuple[bool, Optional[Dict]]:
             'Content-Type': 'application/json'
         }
         
-        # Check user's memberships
-        response = requests.get(
-            f'https://api.whop.com/api/v5/me/memberships',
-            headers=headers,
-            timeout=10
-        )
+        params = {
+            "user_id": user_id,
+            "statuses": "active"
+        }
+        if app_id:
+            params["app_id"] = app_id
+        if company_id:
+            params["company_id"] = company_id
+        if experience_id:
+            params["experience_id"] = experience_id
         
+        # Primary request using latest API
+        url = f"{base_url.rstrip('/')}/api/v5/memberships"
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        
+        data = None
         if response.status_code == 200:
             data = response.json()
-            # Check if user has any active memberships
-            if data.get('data') and len(data['data']) > 0:
-                for membership in data['data']:
-                    if membership.get('valid') and membership.get('status') == 'active':
+        else:
+            # Fallback to older endpoint if needed
+            fallback_url = f"{base_url.rstrip('/')}/api/v2/users/{user_id}/memberships"
+            fallback_params = {}
+            if app_id:
+                fallback_params["app_id"] = app_id
+            if company_id:
+                fallback_params["company_id"] = company_id
+            response = requests.get(fallback_url, headers=headers, params=fallback_params, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+        
+        if data:
+            memberships = data.get('data') if isinstance(data, dict) else data
+            if memberships:
+                for membership in memberships:
+                    status = membership.get('status') or membership.get('state')
+                    is_active = status in ['active', 'trialing', 'trial'] or membership.get('valid', False)
+                    if is_active:
+                        plan_name = membership.get('plan', {}).get('name') or membership.get('product', {}).get('name') or 'Premium'
+                        expires_at = membership.get('expires_at') or membership.get('end_time')
                         return True, {
                             'user_id': user_id,
                             'membership_id': membership.get('id'),
-                            'plan': membership.get('plan', {}).get('name', 'Premium'),
-                            'expires_at': membership.get('expires_at')
+                            'plan': plan_name,
+                            'expires_at': expires_at,
+                            'source': 'api'
                         }
         
         return False, None
         
     except Exception as e:
-        st.error(f"Whop API error: {str(e)}")
+        st.warning(f"Whop API error: {str(e)}")
         return False, None
 
 def check_access() -> Tuple[bool, Optional[Dict]]:
@@ -105,16 +137,24 @@ def check_access() -> Tuple[bool, Optional[Dict]]:
         experience_id = query_params.get('experience_id')
         
         if user_id:
-            # Store in session
-            if 'whop_iframe_validated' not in st.session_state:
-                st.session_state['whop_iframe_validated'] = True
-                st.session_state['whop_user_id'] = user_id
-                st.session_state['whop_user_data'] = {
+            # Validate with Whop API to ensure membership is active
+            if (
+                st.session_state.get('whop_user_id') != user_id
+                or 'whop_user_data' not in st.session_state
+            ):
+                is_valid, user_data = validate_whop_membership(user_id, experience_id=experience_id)
+                if not is_valid:
+                    return False, None
+                
+                user_data = user_data or {}
+                user_data.update({
                     'user_id': user_id,
                     'experience_id': experience_id,
-                    'mode': 'iframe',
-                    'plan': 'Premium'  # All iframe users have access
-                }
+                    'mode': 'iframe'
+                })
+                st.session_state['whop_iframe_validated'] = True
+                st.session_state['whop_user_id'] = user_id
+                st.session_state['whop_user_data'] = user_data
             
             return True, st.session_state.get('whop_user_data')
         
@@ -132,8 +172,10 @@ def check_access() -> Tuple[bool, Optional[Dict]]:
         whop_user_id = query_params.get('user_id') or query_params.get('whop_user_id')
         
         # If we have a user ID from query params, validate and store in session
+        experience_id = query_params.get('experience_id')
+        
         if whop_user_id and 'whop_validated' not in st.session_state:
-            is_valid, user_data = validate_whop_membership(whop_user_id)
+            is_valid, user_data = validate_whop_membership(whop_user_id, experience_id=experience_id)
             if is_valid:
                 st.session_state['whop_user_id'] = whop_user_id
                 st.session_state['whop_user_data'] = user_data
@@ -212,7 +254,8 @@ def require_authentication():
         if st.button("Validate Access"):
             if user_id_input:
                 with st.spinner("Validating membership..."):
-                    is_valid, user_data = validate_whop_membership(user_id_input)
+                    experience_id = st.query_params.get('experience_id')
+                    is_valid, user_data = validate_whop_membership(user_id_input, experience_id=experience_id)
                     if is_valid:
                         st.session_state['whop_user_id'] = user_id_input
                         st.session_state['whop_user_data'] = user_data
