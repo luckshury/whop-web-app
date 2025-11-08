@@ -719,6 +719,7 @@ if analyze_button:
         
         df = None
         days_in_range = (end_date - start_date).days
+        candle_count = 0
         
         # Try Supabase first if available
         if SUPABASE_AVAILABLE and exchange == "Bybit":
@@ -727,7 +728,8 @@ if analyze_button:
                 df = fetch_candles_from_supabase(ticker, days_in_range)
                 
                 if df is not None and not df.empty:
-                    st.success(f"✨ Loaded {len(df):,} candles from cache - updated every 15 minutes!")
+                    # Store candle count for compact display later
+                    candle_count = len(df)
         
         # Fallback to direct API if Supabase not available or no data
         if df is None or (df is not None and df.empty):
@@ -742,6 +744,9 @@ if analyze_button:
                     df = fetch_bybit_data(ticker, "15", start_date, end_date, category, progress_bar)
                     
                     progress_bar.empty()
+                    
+                    if df is not None and not df.empty:
+                        candle_count = len(df)
                     
                     if df is None or df.empty:
                         st.error("❌ No data returned from Bybit API")
@@ -774,12 +779,13 @@ if analyze_button:
                     "days_analyzed": days_count
                 }
                 
-                # Show which weekdays were used
+                # Show compact summary
                 if selected_weekdays:
                     weekday_display = ", ".join(selected_weekdays)
-                    st.info(f"📅 Filtered to: {weekday_display} ({days_count} days analyzed)")
                 else:
-                    st.info(f"📅 All weekdays ({days_count} days analyzed)")
+                    weekday_display = "All weekdays"
+                
+                st.caption(f"✨ {candle_count:,} candles | 📅 {weekday_display} | 📊 {days_count} days analyzed")
                 
                 # Save to Supabase cache if available
                 if SUPABASE_AVAILABLE:
