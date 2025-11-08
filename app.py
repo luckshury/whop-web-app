@@ -1,11 +1,10 @@
 import streamlit as st
 from dotenv import load_dotenv
-from utils.auth import require_authentication
 
-# Load environment variables
+# Load environment variables (useful for local .env files)
 load_dotenv()
 
-# Page configuration (must be called before authentication check)
+# Page configuration
 st.set_page_config(
     page_title="Pivot Analysis Pro",
     page_icon="🚀",
@@ -13,20 +12,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Require authentication (will stop execution if not authenticated)
-# Set DEV_MODE=True in .env to bypass during development
-require_authentication()
-
-# Check if running in iframe (inside Whop)
-is_iframe = st.query_params.get('whop_iframe') == 'true' or st.query_params.get('experience_id') is not None
-
-# Custom CSS for neutral dark theme (Morty-inspired)
+# Custom CSS for neutral dark theme
 iframe_css = """
-    /* Hide Streamlit branding in iframe */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stDeployButton {visibility: hidden;}
-""" if is_iframe else ""
+"""
 
 st.markdown(f"""
     <style>
