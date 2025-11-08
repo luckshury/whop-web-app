@@ -376,35 +376,8 @@ with st.sidebar:
         if st.checkbox(day, value=default_checked, key=f"weekday_{day}"):
             selected_weekdays.append(day)
     
-    st.markdown("---")
-    
-    # Color Theme Selector
-    st.subheader("🎨 Color Theme")
-    color_theme_options = [
-        "Blue (Default)",
-        "Viridis",
-        "Plasma",
-        "Inferno",
-        "Magma",
-        "Turbo",
-        "Purple",
-        "Green",
-        "Orange"
-    ]
-    
-    theme_index = 0
-    if st.session_state.saved_color_theme in color_theme_options:
-        theme_index = color_theme_options.index(st.session_state.saved_color_theme)
-    
-    color_theme = st.selectbox(
-        "Heatmap Style",
-        color_theme_options,
-        index=theme_index,
-        help="Color scheme for table"
-    )
-    
-    # Save color theme selection
-    st.session_state.saved_color_theme = color_theme
+    # Use default color theme (hidden from user)
+    color_theme = "Blue (Default)"
     
     st.markdown("---")
     analyze_button = st.button("📈 Analyze", type="primary", use_container_width=True)
