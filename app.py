@@ -31,12 +31,12 @@ iframe_css = """
 st.markdown(f"""
     <style>
         .main .block-container {{
-            background-color: #1E1E1E;
+            background-color: #111;
             padding-top: 2rem;
             padding-bottom: 2rem;
         }}
         .stApp {{
-            background-color: #1E1E1E;
+            background-color: #111;
         }}
         section[data-testid="stSidebar"] {{
             background-color: #252525;
