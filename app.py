@@ -46,19 +46,9 @@ st.markdown(f"""
             min-width: 300px !important;
             max-width: 300px !important;
             width: 300px !important;
-            flex-shrink: 0 !important;
         }}
         section[data-testid="stSidebar"] > div {{
             width: 300px !important;
-        }}
-        /* Prevent main content from shifting */
-        [data-testid="stAppViewContainer"] {{
-            margin-left: 300px !important;
-        }}
-        /* Lock the layout */
-        .main {{
-            width: calc(100% - 300px) !important;
-            margin-left: 300px !important;
         }}
         .stApp > header {{
             background-color: #111 !important;
