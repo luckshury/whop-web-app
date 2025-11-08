@@ -30,6 +30,7 @@ iframe_css = """
 
 st.markdown(f"""
     <style>
+        /* Force cache bust - v2 */
         .main .block-container {{
             background-color: #111 !important;
             padding-top: 2rem;
@@ -42,6 +43,9 @@ st.markdown(f"""
             background-color: #111 !important;
         }}
         section[data-testid="stSidebar"] {{
+            background-color: #000 !important;
+        }}
+        section[data-testid="stSidebar"] > div {{
             background-color: #000 !important;
         }}
         .stApp > header {{
@@ -65,39 +69,49 @@ st.markdown(f"""
         [data-testid="stMain"] {{
             background-color: #111 !important;
         }}
+        /* Text colors */
         h1, h2, h3, h4, h5, h6 {{
-            color: #E8E8E8;
+            color: #E8E8E8 !important;
         }}
         .stMarkdown {{
-            color: #E8E8E8;
+            color: #E8E8E8 !important;
         }}
         .stDataFrame {{
-            background-color: #2D2D2D;
+            background-color: #2D2D2D !important;
         }}
+        /* Input labels and fields */
         .stSelectbox label, .stTextInput label, .stDateInput label, .stButton button {{
-            color: #E8E8E8;
+            color: #E8E8E8 !important;
         }}
         .stSelectbox > div > div {{
-            background-color: #2D2D2D;
-            color: #E8E8E8;
+            background-color: #2D2D2D !important;
+            color: #E8E8E8 !important;
         }}
         .stTextInput > div > div > input {{
-            background-color: #2D2D2D;
-            color: #E8E8E8;
+            background-color: #2D2D2D !important;
+            color: #E8E8E8 !important;
         }}
         .stDateInput > div > div > input {{
-            background-color: #2D2D2D;
-            color: #E8E8E8;
+            background-color: #2D2D2D !important;
+            color: #E8E8E8 !important;
         }}
         .stButton > button {{
-            background-color: #4A4A4A;
-            color: #E8E8E8;
+            background-color: #4A4A4A !important;
+            color: #E8E8E8 !important;
         }}
         .stButton > button:hover {{
-            background-color: #5A5A5A;
+            background-color: #5A5A5A !important;
         }}
         .stCaption {{
-            color: #B0B0B0;
+            color: #B0B0B0 !important;
+        }}
+        /* Checkbox styling */
+        .stCheckbox label {{
+            color: #E8E8E8 !important;
+        }}
+        /* Spinner styling */
+        .stSpinner > div {{
+            border-color: #E8E8E8 !important;
         }}
         {iframe_css}
     </style>

@@ -694,8 +694,9 @@ if analyze_button:
         days_in_range = (end_date - start_date).days
         candle_count = 0
         
-        # Try Supabase first if available
-        if SUPABASE_AVAILABLE and exchange == "Bybit":
+        # TEMPORARILY DISABLED: Supabase causing hangs on Railway
+        # TODO: Debug and re-enable
+        if False and SUPABASE_AVAILABLE and exchange == "Bybit":
             # Try to fetch from cache directly (skip slow availability check)
             with st.spinner(f"⚡ Loading from cache..."):
                 df = fetch_candles_from_supabase(ticker, days_in_range)
