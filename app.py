@@ -42,10 +42,18 @@ st.markdown(f"""
             background-color: #252525;
         }}
         .stApp > header {{
-            background-color: #252525;
+            background-color: #111;
         }}
         header[data-testid="stHeader"] {{
-            background-color: #252525;
+            background-color: #111;
+        }}
+        /* Hide the 3-dot menu button */
+        button[kind="header"] {{
+            display: none;
+        }}
+        /* Make toolbar seamless */
+        [data-testid="stToolbar"] {{
+            background-color: #111;
         }}
         h1, h2, h3, h4, h5, h6 {{
             color: #E8E8E8;
