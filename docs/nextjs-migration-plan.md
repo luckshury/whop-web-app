@@ -32,9 +32,10 @@ This document outlines the steps required to migrate the current Streamlit-based
 ## 3. Migration Phases
 
 1. **Template Setup**
-   - Fork Whop template into repo (subfolder `whop-app/`).  
+   - Fork Whop template into repo (subfolder `whop-app/`) and/or standalone repo.  
    - Configure `.env.local` with Whop vars and existing Supabase/Bybit credentials.  
-   - Run locally, ensure Whop iframe handshake works (`pnpm dev`).
+   - Update `package.json` dev script to wrap the dev server with Whop’s proxy per the [dev proxy guide](https://docs.whop.com/apps/guides/dev-proxy) (already included as `@whop-apps/dev-proxy`).  
+   - Run locally via `pnpm dev` (proxy injects auth headers, use translucent settings button to select `localhost`).
 
 2. **Shared Utilities & Data Layer**
    - Recreate helpers: date utilities, timezone handling (UTC), percent calculations.  
@@ -69,11 +70,16 @@ This document outlines the steps required to migrate the current Streamlit-based
    - Deploy to Vercel; update Whop hosting base/app path.  
    - Decommission or archive Streamlit app once parity confirmed.
 
-## 4. Outstanding Questions
+## 4. Backend Direction (Decision)
 
-1. Should analytics heavy lifting remain in Python (reused via FastAPI) or move entirely to TypeScript?  
-2. Do we need historical caching beyond Supabase (e.g., Redis)?  
-3. Any UX updates planned alongside migration (new features or layout changes)?
+- **Data Layer**: Implement Next.js API routes that talk directly to Supabase (`@supabase/supabase-js`) and Bybit’s REST endpoints. This keeps everything in one deployment and leverages the template’s edge/server runtime.  
+- **Job Scheduling**: Reuse existing GitHub Actions / scripts to populate Supabase; add a Next.js route for manual refresh if necessary.  
+- **Computation**: Port pivot calculations to TypeScript utilities reusable by both API routes and client components.
 
-Clarifying these will inform the backend design and development timeline.
+## 5. Outstanding Questions
+
+1. Do we need historical caching beyond Supabase (e.g., Redis)?  
+2. Any UX updates planned alongside migration (new features or layout changes)?
+
+Clarifying these will inform the remaining implementation details.
 
