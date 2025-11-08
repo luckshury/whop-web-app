@@ -1055,153 +1055,152 @@ if pivot_table is not None:
                                         p2_price = float(high_row['high'])
                                     
                                     if p1_price and p2_price:
-                                    
-                                    # Create mini candlestick chart
-                                    fig = go.Figure()
-                                    
-                                    # Add candlestick
-                                    fig.add_trace(go.Candlestick(
-                                        x=today_data['start_time'],
-                                        open=today_data['open'],
-                                        high=today_data['high'],
-                                        low=today_data['low'],
-                                        close=today_data['close'],
-                                        name=ticker,
-                                        increasing_line_color='#26a69a',
-                                        decreasing_line_color='#ef5350',
-                                        increasing_fillcolor='rgba(38, 166, 154, 0.3)',
-                                        decreasing_fillcolor='rgba(239, 83, 80, 0.3)'
-                                    ))
-                                    
-                                    # Get the last candle time for ray extension
-                                    last_time = today_data['start_time'].max()
-                                    
-                                    # Add P1 marker at exact pivot (high or low)
-                                    p1_symbol = 'triangle-up' if p1_is_high else 'triangle-down'
-                                    fig.add_trace(go.Scatter(
-                                        x=[p1_exact_time],
-                                        y=[p1_price],
-                                        mode='markers+text',
-                                        marker=dict(
-                                            size=10,
-                                            color='rgba(100, 150, 255, 1)',
-                                            symbol=p1_symbol,
-                                            line=dict(width=1, color='white')
-                                        ),
-                                        text=['P1'],
-                                        textposition='top center' if p1_is_high else 'bottom center',
-                                        textfont=dict(size=8, color='rgba(100, 150, 255, 1)', family='Arial Black'),
-                                        name='P1',
-                                        showlegend=False,
-                                        hovertemplate=f'<b>P1 {"High" if p1_is_high else "Low"}</b><br>${p1_price:,.2f}<extra></extra>'
-                                    ))
-                                    
-                                    # Add P1 ray extending from pivot to end
-                                    fig.add_trace(go.Scatter(
-                                        x=[p1_exact_time, last_time],
-                                        y=[p1_price, p1_price],
-                                        mode='lines',
-                                        line=dict(
-                                            color='rgba(100, 150, 255, 0.6)',
-                                            width=1.5,
-                                            dash='dash'
-                                        ),
-                                        name='P1',
-                                        showlegend=False,
-                                        hoverinfo='skip'
-                                    ))
-                                    
-                                    # Add P2 marker at exact pivot (opposite of P1)
-                                    p2_symbol = 'triangle-down' if p1_is_high else 'triangle-up'
-                                    fig.add_trace(go.Scatter(
-                                        x=[p2_exact_time],
-                                        y=[p2_price],
-                                        mode='markers+text',
-                                        marker=dict(
-                                            size=10,
-                                            color='rgba(255, 150, 100, 1)',
-                                            symbol=p2_symbol,
-                                            line=dict(width=1, color='white')
-                                        ),
-                                        text=['P2'],
-                                        textposition='bottom center' if p1_is_high else 'top center',
-                                        textfont=dict(size=8, color='rgba(255, 150, 100, 1)', family='Arial Black'),
-                                        name='P2',
-                                        showlegend=False,
-                                        hovertemplate=f'<b>P2 {"Low" if p1_is_high else "High"}</b><br>${p2_price:,.2f}<extra></extra>'
-                                    ))
-                                    
-                                    # Add P2 ray extending from pivot to end
-                                    fig.add_trace(go.Scatter(
-                                        x=[p2_exact_time, last_time],
-                                        y=[p2_price, p2_price],
-                                        mode='lines',
-                                        line=dict(
-                                            color='rgba(255, 150, 100, 0.6)',
-                                            width=1.5,
-                                            dash='dash'
-                                        ),
-                                        name='P2',
-                                        showlegend=False,
-                                        hoverinfo='skip'
-                                    ))
-                                    
-                                    # Add price annotations at end of rays
-                                    fig.add_annotation(
-                                        x=last_time,
-                                        y=p1_price,
-                                        text=f"${p1_price:,.0f}",
-                                        showarrow=False,
-                                        xanchor="left",
-                                        xshift=3,
-                                        font=dict(size=8, color='rgba(100, 150, 255, 0.9)'),
-                                        bgcolor='rgba(30, 30, 30, 0.7)',
-                                        bordercolor='rgba(100, 150, 255, 0.3)',
-                                        borderwidth=1,
-                                        borderpad=1
-                                    )
-                                    
-                                    fig.add_annotation(
-                                        x=last_time,
-                                        y=p2_price,
-                                        text=f"${p2_price:,.0f}",
-                                        showarrow=False,
-                                        xanchor="left",
-                                        xshift=3,
-                                        font=dict(size=8, color='rgba(255, 150, 100, 0.9)'),
-                                        bgcolor='rgba(30, 30, 30, 0.7)',
-                                        bordercolor='rgba(255, 150, 100, 0.3)',
-                                        borderwidth=1,
-                                        borderpad=1
-                                    )
-                                    
-                                    # Compact layout for mini view
-                                    fig.update_layout(
-                                        height=250,
-                                        margin=dict(l=0, r=0, t=5, b=0),
-                                        xaxis_title="",
-                                        yaxis_title="",
-                                        xaxis_rangeslider_visible=False,
-                                        plot_bgcolor='rgba(30, 30, 30, 0.3)',
-                                        paper_bgcolor='rgba(0,0,0,0)',
-                                        font=dict(color='#E8E8E8', size=8),
-                                        xaxis=dict(
-                                            gridcolor='rgba(255, 255, 255, 0.05)',
-                                            showgrid=True,
-                                            zeroline=False,
-                                            showticklabels=False
-                                        ),
-                                        yaxis=dict(
-                                            gridcolor='rgba(255, 255, 255, 0.05)',
-                                            showgrid=True,
-                                            zeroline=False,
-                                            side='right',
-                                            tickfont=dict(size=8)
-                                        ),
-                                        hovermode='x unified',
-                                        showlegend=False
-                                    )
-                                    
+                                        # Create mini candlestick chart
+                                        fig = go.Figure()
+                                        
+                                        # Add candlestick
+                                        fig.add_trace(go.Candlestick(
+                                            x=today_data['start_time'],
+                                            open=today_data['open'],
+                                            high=today_data['high'],
+                                            low=today_data['low'],
+                                            close=today_data['close'],
+                                            name=ticker,
+                                            increasing_line_color='#26a69a',
+                                            decreasing_line_color='#ef5350',
+                                            increasing_fillcolor='rgba(38, 166, 154, 0.3)',
+                                            decreasing_fillcolor='rgba(239, 83, 80, 0.3)'
+                                        ))
+                                        
+                                        # Get the last candle time for ray extension
+                                        last_time = today_data['start_time'].max()
+                                        
+                                        # Add P1 marker at exact pivot (high or low)
+                                        p1_symbol = 'triangle-up' if p1_is_high else 'triangle-down'
+                                        fig.add_trace(go.Scatter(
+                                            x=[p1_exact_time],
+                                            y=[p1_price],
+                                            mode='markers+text',
+                                            marker=dict(
+                                                size=10,
+                                                color='rgba(100, 150, 255, 1)',
+                                                symbol=p1_symbol,
+                                                line=dict(width=1, color='white')
+                                            ),
+                                            text=['P1'],
+                                            textposition='top center' if p1_is_high else 'bottom center',
+                                            textfont=dict(size=8, color='rgba(100, 150, 255, 1)', family='Arial Black'),
+                                            name='P1',
+                                            showlegend=False,
+                                            hovertemplate=f'<b>P1 {"High" if p1_is_high else "Low"}</b><br>${p1_price:,.2f}<extra></extra>'
+                                        ))
+                                        
+                                        # Add P1 ray extending from pivot to end
+                                        fig.add_trace(go.Scatter(
+                                            x=[p1_exact_time, last_time],
+                                            y=[p1_price, p1_price],
+                                            mode='lines',
+                                            line=dict(
+                                                color='rgba(100, 150, 255, 0.6)',
+                                                width=1.5,
+                                                dash='dash'
+                                            ),
+                                            name='P1',
+                                            showlegend=False,
+                                            hoverinfo='skip'
+                                        ))
+                                        
+                                        # Add P2 marker at exact pivot (opposite of P1)
+                                        p2_symbol = 'triangle-down' if p1_is_high else 'triangle-up'
+                                        fig.add_trace(go.Scatter(
+                                            x=[p2_exact_time],
+                                            y=[p2_price],
+                                            mode='markers+text',
+                                            marker=dict(
+                                                size=10,
+                                                color='rgba(255, 150, 100, 1)',
+                                                symbol=p2_symbol,
+                                                line=dict(width=1, color='white')
+                                            ),
+                                            text=['P2'],
+                                            textposition='bottom center' if p1_is_high else 'top center',
+                                            textfont=dict(size=8, color='rgba(255, 150, 100, 1)', family='Arial Black'),
+                                            name='P2',
+                                            showlegend=False,
+                                            hovertemplate=f'<b>P2 {"Low" if p1_is_high else "High"}</b><br>${p2_price:,.2f}<extra></extra>'
+                                        ))
+                                        
+                                        # Add P2 ray extending from pivot to end
+                                        fig.add_trace(go.Scatter(
+                                            x=[p2_exact_time, last_time],
+                                            y=[p2_price, p2_price],
+                                            mode='lines',
+                                            line=dict(
+                                                color='rgba(255, 150, 100, 0.6)',
+                                                width=1.5,
+                                                dash='dash'
+                                            ),
+                                            name='P2',
+                                            showlegend=False,
+                                            hoverinfo='skip'
+                                        ))
+                                        
+                                        # Add price annotations at end of rays
+                                        fig.add_annotation(
+                                            x=last_time,
+                                            y=p1_price,
+                                            text=f"${p1_price:,.0f}",
+                                            showarrow=False,
+                                            xanchor="left",
+                                            xshift=3,
+                                            font=dict(size=8, color='rgba(100, 150, 255, 0.9)'),
+                                            bgcolor='rgba(30, 30, 30, 0.7)',
+                                            bordercolor='rgba(100, 150, 255, 0.3)',
+                                            borderwidth=1,
+                                            borderpad=1
+                                        )
+                                        
+                                        fig.add_annotation(
+                                            x=last_time,
+                                            y=p2_price,
+                                            text=f"${p2_price:,.0f}",
+                                            showarrow=False,
+                                            xanchor="left",
+                                            xshift=3,
+                                            font=dict(size=8, color='rgba(255, 150, 100, 0.9)'),
+                                            bgcolor='rgba(30, 30, 30, 0.7)',
+                                            bordercolor='rgba(255, 150, 100, 0.3)',
+                                            borderwidth=1,
+                                            borderpad=1
+                                        )
+                                        
+                                        # Compact layout for mini view
+                                        fig.update_layout(
+                                            height=250,
+                                            margin=dict(l=0, r=0, t=5, b=0),
+                                            xaxis_title="",
+                                            yaxis_title="",
+                                            xaxis_rangeslider_visible=False,
+                                            plot_bgcolor='rgba(30, 30, 30, 0.3)',
+                                            paper_bgcolor='rgba(0,0,0,0)',
+                                            font=dict(color='#E8E8E8', size=8),
+                                            xaxis=dict(
+                                                gridcolor='rgba(255, 255, 255, 0.05)',
+                                                showgrid=True,
+                                                zeroline=False,
+                                                showticklabels=False
+                                            ),
+                                            yaxis=dict(
+                                                gridcolor='rgba(255, 255, 255, 0.05)',
+                                                showgrid=True,
+                                                zeroline=False,
+                                                side='right',
+                                                tickfont=dict(size=8)
+                                            ),
+                                            hovermode='x unified',
+                                            showlegend=False
+                                        )
+                                        
                                         # Display mini chart
                                         st.plotly_chart(fig, use_container_width=True, key=f"mini_chart_{ticker}")
                                 except Exception as e:
