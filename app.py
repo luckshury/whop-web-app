@@ -30,7 +30,17 @@ iframe_css = """
 
 st.markdown(f"""
     <style>
-        /* Force cache bust - v2 */
+        :root {{
+            color-scheme: dark;
+        }}
+        html, body {{
+            background-color: #111 !important;
+            color: #E8E8E8 !important;
+        }}
+        body * {{
+            color: #E8E8E8;
+        }}
+        /* Force cache bust - v3 */
         .main .block-container {{
             background-color: #111 !important;
             padding-top: 2rem;
@@ -79,7 +89,13 @@ st.markdown(f"""
         [data-testid="stMain"] {{
             background-color: #111 !important;
         }}
+        [data-testid="stSidebarNav"] {{
+            background-color: #000 !important;
+        }}
         /* Text colors */
+        .stMarkdown p, .stMarkdown span, .stMarkdown div {{
+            color: #E8E8E8 !important;
+        }}
         h1, h2, h3, h4, h5, h6 {{
             color: #E8E8E8 !important;
         }}
@@ -112,6 +128,21 @@ st.markdown(f"""
         .stButton > button:hover {{
             background-color: #5A5A5A !important;
         }}
+        div[data-baseweb="select"] {{
+            background-color: #2D2D2D !important;
+        }}
+        div[data-baseweb="select"] * {{
+            color: #E8E8E8 !important;
+        }}
+        .stRadio div[role="radiogroup"] > label {{
+            color: #E8E8E8 !important;
+        }}
+        .stTabs [data-baseweb="tab-list"] {{
+            background-color: #111 !important;
+        }}
+        .stTabs button {{
+            color: #E8E8E8 !important;
+        }}
         .stCaption {{
             color: #B0B0B0 !important;
         }}
@@ -119,9 +150,26 @@ st.markdown(f"""
         .stCheckbox label {{
             color: #E8E8E8 !important;
         }}
+        .stCheckbox div[role="checkbox"] {{
+            border-color: #E8E8E8 !important;
+        }}
         /* Spinner styling */
         .stSpinner > div {{
             border-color: #E8E8E8 !important;
+        }}
+        /* Table styling */
+        .stDataFrame div[data-testid="stHorizontalBlock"] {{
+            background-color: #2D2D2D !important;
+        }}
+        .stDataFrame thead th {{
+            background-color: #1f1f1f !important;
+            color: #E8E8E8 !important;
+        }}
+        .stDataFrame tbody td {{
+            color: #E8E8E8 !important;
+        }}
+        .st-emotion-cache-1629p8f, .st-emotion-cache-1qdco6z {{
+            background-color: transparent !important;
         }}
         {iframe_css}
     </style>
