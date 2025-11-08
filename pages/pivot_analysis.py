@@ -700,12 +700,17 @@ if analyze_button:
         st.error("Please enter a ticker symbol!")
     elif start_date > end_date:
         st.error("Invalid date range!")
-    else:
+    elif not selected_weekdays:
+        st.warning("⚠️ No weekdays selected! Analyzing all days by default.")
+        selected_weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    
+    if ticker and start_date <= end_date:
         # Save current parameters to session state for persistence
         st.session_state.saved_exchange = exchange
         st.session_state.saved_ticker = ticker
         st.session_state.saved_date_range = (start_date, end_date)
-        st.session_state.saved_weekdays = selected_weekdays
+        # Only save weekdays if at least one is selected, otherwise keep all days
+        st.session_state.saved_weekdays = selected_weekdays if selected_weekdays else ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         
         df = None
         days_in_range = (end_date - start_date).days
