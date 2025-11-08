@@ -690,56 +690,18 @@ if analyze_button:
         # Only save weekdays if at least one is selected, otherwise keep all days
         st.session_state.saved_weekdays = selected_weekdays if selected_weekdays else ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         
-        df = None
-        days_in_range = (end_date - start_date).days
-        candle_count = 0
+        # Simple and reliable - just fetch from API
+        with st.spinner(f"📡 Loading {ticker} data..."):
+            df = fetch_bybit_data(ticker, "15", start_date, end_date, category, None)
         
-        # TEMPORARILY DISABLED: Supabase causing hangs on Railway
-        # TODO: Debug and re-enable
-        if False and SUPABASE_AVAILABLE and exchange == "Bybit":
-            # Try to fetch from cache directly (skip slow availability check)
-            with st.spinner(f"⚡ Loading from cache..."):
-                df = fetch_candles_from_supabase(ticker, days_in_range)
-                
-                if df is not None and not df.empty:
-                    # Store candle count for compact display later
-                    candle_count = len(df)
+        if df is None or df.empty:
+            st.error(f"❌ No data for {ticker}. Check ticker symbol or try again later.")
+            st.session_state.pivot_data = build_empty_pivot_table()
+            st.session_state.pivot_stats = {"days_analyzed": 0}
         
-        # Fallback to direct API if Supabase not available or no data
-        if df is None or (df is not None and df.empty):
-            if SUPABASE_AVAILABLE:
-                st.info(f"📡 Fetching from {exchange} API (not cached yet)...")
-            
-            with st.spinner(f"Fetching data from {exchange}..."):
-                if exchange == "Bybit":
-                    progress_bar = st.progress(0)
-                    status_placeholder = st.empty()
-                    
-                    df = fetch_bybit_data(ticker, "15", start_date, end_date, category, progress_bar)
-                    
-                    progress_bar.empty()
-                    
-                    if df is not None and not df.empty:
-                        candle_count = len(df)
-                    
-                    if df is None or df.empty:
-                        st.error("❌ No data returned from Bybit API")
-                        st.error("Possible issues:")
-                        st.error("- Ticker symbol might be wrong (try BTCUSDT)")
-                        st.error("- Bybit API might be rate limiting")
-                        st.error("- Network connection issue")
-                        
-                        # Try a simple test request
-                        try:
-                            test_response = requests.get("https://api.bybit.com/v5/market/kline?category=spot&symbol=BTCUSDT&interval=15&limit=1")
-                            st.info(f"Test API status: {test_response.status_code}")
-                            st.code(test_response.text[:500])
-                        except Exception as e:
-                            st.error(f"Test request failed: {str(e)}")
-                        
-                        st.session_state.pivot_data = build_empty_pivot_table()
-                        st.session_state.pivot_stats = {"days_analyzed": 0}
-                elif exchange == "Hyperliquid":
+        candle_count = len(df) if df is not None else 0
+        
+        if False and exchange == "Hyperliquid":
                     st.info("Hyperliquid integration coming soon!")
                     st.session_state.pivot_data = build_empty_pivot_table()
                     st.session_state.pivot_stats = {"days_analyzed": 0}
@@ -1075,23 +1037,24 @@ if pivot_table is not None:
                             ].copy()
                             
                             if not today_data.empty and p1_exact_time is not None and p2_exact_time is not None:
-                                import plotly.graph_objects as go
-                                
-                                # Determine if P1 is high or low (first extreme)
-                                high_row = today_data.loc[today_data['high'].idxmax()]
-                                low_row = today_data.loc[today_data['low'].idxmin()]
-                                
-                                p1_is_high = high_row['start_time'] < low_row['start_time']
-                                
-                                # Get P1 and P2 prices from the correct extreme
-                                if p1_is_high:
-                                    p1_price = float(high_row['high'])
-                                    p2_price = float(low_row['low'])
-                                else:
-                                    p1_price = float(low_row['low'])
-                                    p2_price = float(high_row['high'])
-                                
-                                if p1_price and p2_price:
+                                try:
+                                    import plotly.graph_objects as go
+                                    
+                                    # Determine if P1 is high or low (first extreme)
+                                    high_row = today_data.loc[today_data['high'].idxmax()]
+                                    low_row = today_data.loc[today_data['low'].idxmin()]
+                                    
+                                    p1_is_high = high_row['start_time'] < low_row['start_time']
+                                    
+                                    # Get P1 and P2 prices from the correct extreme
+                                    if p1_is_high:
+                                        p1_price = float(high_row['high'])
+                                        p2_price = float(low_row['low'])
+                                    else:
+                                        p1_price = float(low_row['low'])
+                                        p2_price = float(high_row['high'])
+                                    
+                                    if p1_price and p2_price:
                                     
                                     # Create mini candlestick chart
                                     fig = go.Figure()
@@ -1239,8 +1202,10 @@ if pivot_table is not None:
                                         showlegend=False
                                     )
                                     
-                                    # Display mini chart
-                                    st.plotly_chart(fig, use_container_width=True, key=f"mini_chart_{ticker}")
+                                        # Display mini chart
+                                        st.plotly_chart(fig, use_container_width=True, key=f"mini_chart_{ticker}")
+                                except Exception as e:
+                                    st.error(f"Chart error: {str(e)}")
                 else:
                     st.info("Waiting for P1 and P2 to be established...")
     
