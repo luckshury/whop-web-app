@@ -1,6 +1,8 @@
 import streamlit as st
 from dotenv import load_dotenv
 
+from utils.auth import require_whop_auth
+
 # Load environment variables (useful for local .env files)
 load_dotenv()
 
@@ -11,6 +13,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Enforce Whop authentication (bypassed in DEV_MODE)
+require_whop_auth()
 
 # Custom CSS for neutral dark theme
 iframe_css = """
