@@ -226,29 +226,24 @@ def check_data_availability(ticker: str) -> dict:
         return {"available": False}
     
     try:
-        # Get latest timestamp
-        latest_response = supabase.table('candles_15m') \
+        # Just check if any data exists (fast query)
+        check_response = supabase.table('candles_15m') \
             .select('timestamp') \
             .eq('ticker', ticker) \
             .order('timestamp', desc=True) \
             .limit(1) \
             .execute()
         
-        if not latest_response.data:
+        if not check_response.data:
             return {"available": False}
-        
-        # Get count
-        count_response = supabase.table('candles_15m') \
-            .select('id', count='exact') \
-            .eq('ticker', ticker) \
-            .execute()
         
         return {
             "available": True,
-            "latest_timestamp": latest_response.data[0]['timestamp'],
-            "candle_count": count_response.count
+            "latest_timestamp": check_response.data[0]['timestamp'],
+            "candle_count": 1000  # Placeholder - we don't need exact count
         }
-    except:
+    except Exception as e:
+        print(f"Supabase check error: {e}")
         return {"available": False}
 
 def is_supabase_enabled() -> bool:
