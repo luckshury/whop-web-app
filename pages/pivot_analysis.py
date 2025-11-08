@@ -609,8 +609,16 @@ def calculate_pivot_analysis(df, selected_weekdays):
 
     df['date'] = df['start_time'].dt.date
     df['weekday'] = df['start_time'].dt.dayofweek
+    
+    # Filter by selected weekdays
+    initial_rows = len(df)
     df = df[df['weekday'].isin(selected_weekdays)]
-
+    filtered_rows = len(df)
+    
+    # Debug info (will show in app)
+    weekday_names = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
+    selected_names = ", ".join([weekday_names[d] for d in selected_weekdays])
+    
     if df.empty:
         return build_empty_pivot_table(), 0
 
@@ -771,6 +779,13 @@ if analyze_button:
                 st.session_state.pivot_stats = {
                     "days_analyzed": days_count
                 }
+                
+                # Show which weekdays were used
+                if selected_weekdays:
+                    weekday_display = ", ".join(selected_weekdays)
+                    st.info(f"📅 Filtered to: {weekday_display} ({days_count} days analyzed)")
+                else:
+                    st.info(f"📅 All weekdays ({days_count} days analyzed)")
                 
                 # Save to Supabase cache if available
                 if SUPABASE_AVAILABLE:
