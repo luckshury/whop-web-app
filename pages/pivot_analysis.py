@@ -710,9 +710,8 @@ if analyze_button:
         df = None
         days_in_range = (end_date - start_date).days
         
-        # TEMPORARILY DISABLED: Try Supabase first if available
-        # TODO: Re-enable once we fix the today's data fetch issue
-        if False and SUPABASE_AVAILABLE and exchange == "Bybit":
+        # Try Supabase first if available
+        if SUPABASE_AVAILABLE and exchange == "Bybit":
             # Check if data is available in Supabase
             data_check = check_data_availability(ticker)
             
@@ -721,35 +720,7 @@ if analyze_button:
                     df = fetch_candles_from_supabase(ticker, days_in_range)
                     
                     if df is not None and not df.empty:
-                        st.success(f"✨ Loaded {len(df):,} candles from cache - instant load!")
-                        
-                        # Fetch today's data from Bybit API for real-time P1/P2
-                        # Fetch last 2 days to ensure we get today's data
-                        fetch_start = datetime.now(timezone.utc) - timedelta(days=2)
-                        fetch_end = datetime.now(timezone.utc)
-                        
-                        try:
-                            with st.spinner("📡 Fetching today's live data for P1/P2..."):
-                                recent_df = fetch_bybit_data(ticker, "15", fetch_start, fetch_end, category, None)
-                                
-                                # Filter to only today's data from the fetch
-                                if recent_df is not None and not recent_df.empty:
-                                    today_utc = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-                                    todays_df = recent_df[recent_df['start_time'] >= today_utc]
-                                else:
-                                    todays_df = None
-                                
-                                if todays_df is not None and not todays_df.empty:
-                                    # Remove any overlapping data from cache
-                                    df = df[df['start_time'] < today_utc]
-                                    # Append today's fresh data
-                                    df = pd.concat([df, todays_df], ignore_index=True)
-                                    df = df.sort_values('start_time').reset_index(drop=True)
-                                    st.success(f"✅ Added {len(todays_df)} live candles for today")
-                                else:
-                                    st.warning("⚠️ Could not fetch today's live data - P1/P2 may not be available yet")
-                        except Exception as e:
-                            st.error(f"Error fetching today's data: {str(e)}")
+                        st.success(f"✨ Loaded {len(df):,} candles from cache - updated every 15 minutes!")
         
         # Fallback to direct API if Supabase not available or no data
         if df is None or (df is not None and df.empty):
