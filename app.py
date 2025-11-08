@@ -98,6 +98,10 @@ st.markdown(f"""
         }}
         h1, h2, h3, h4, h5, h6 {{
             color: #E8E8E8 !important;
+            margin-top: 0 !important;
+        }}
+        .main .block-container > *:first-child {{
+            margin-top: 0 !important;
         }}
         .stMarkdown {{
             color: #E8E8E8 !important;

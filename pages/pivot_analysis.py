@@ -23,13 +23,6 @@ try:
 except ImportError:
     SUPABASE_AVAILABLE = False
 
-st.set_page_config(
-    page_title="Pivot Analysis",
-    page_icon="📈",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 # Clean, minimal CSS for sidebar only
 st.markdown("""
 <style>

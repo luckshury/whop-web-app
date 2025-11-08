@@ -6,13 +6,6 @@ import plotly.graph_objects as go
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 
-st.set_page_config(
-    page_title="Data Fetcher",
-    page_icon="📥",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
-
 # Bybit API base URL
 BYBIT_API_BASE = "https://api.bybit.com/v5"
 
