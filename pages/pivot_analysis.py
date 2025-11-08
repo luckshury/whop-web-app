@@ -17,8 +17,7 @@ try:
         fetch_candles_from_supabase,
         get_cached_pivot_analysis,
         save_pivot_analysis_to_cache,
-        is_supabase_enabled,
-        check_data_availability
+        is_supabase_enabled
     )
     SUPABASE_AVAILABLE = is_supabase_enabled()
 except ImportError:
@@ -723,15 +722,12 @@ if analyze_button:
         
         # Try Supabase first if available
         if SUPABASE_AVAILABLE and exchange == "Bybit":
-            # Check if data is available in Supabase
-            data_check = check_data_availability(ticker)
-            
-            if data_check.get("available"):
-                with st.spinner(f"⚡ Loading from cache... ({data_check.get('candle_count', 0):,} candles available)"):
-                    df = fetch_candles_from_supabase(ticker, days_in_range)
-                    
-                    if df is not None and not df.empty:
-                        st.success(f"✨ Loaded {len(df):,} candles from cache - updated every 15 minutes!")
+            # Try to fetch from cache directly (skip slow availability check)
+            with st.spinner(f"⚡ Loading from cache..."):
+                df = fetch_candles_from_supabase(ticker, days_in_range)
+                
+                if df is not None and not df.empty:
+                    st.success(f"✨ Loaded {len(df):,} candles from cache - updated every 15 minutes!")
         
         # Fallback to direct API if Supabase not available or no data
         if df is None or (df is not None and df.empty):
