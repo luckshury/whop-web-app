@@ -43,12 +43,14 @@ st.markdown(f"""
         }}
         section[data-testid="stSidebar"] {{
             background-color: #000 !important;
-            min-width: 300px !important;
-            max-width: 300px !important;
             width: 300px !important;
         }}
         section[data-testid="stSidebar"] > div {{
             width: 300px !important;
+        }}
+        section[data-testid="stSidebar"] .block-container {{
+            width: 280px !important;
+            max-width: 280px !important;
         }}
         .stApp > header {{
             background-color: #111 !important;
