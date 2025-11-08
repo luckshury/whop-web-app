@@ -31,29 +31,39 @@ iframe_css = """
 st.markdown(f"""
     <style>
         .main .block-container {{
-            background-color: #111;
+            background-color: #111 !important;
             padding-top: 2rem;
             padding-bottom: 2rem;
         }}
         .stApp {{
-            background-color: #111;
+            background-color: #111 !important;
+        }}
+        .stApp > div {{
+            background-color: #111 !important;
         }}
         section[data-testid="stSidebar"] {{
-            background-color: #252525;
+            background-color: #252525 !important;
         }}
         .stApp > header {{
-            background-color: #111;
+            background-color: #111 !important;
         }}
         header[data-testid="stHeader"] {{
-            background-color: #111;
+            background-color: #111 !important;
         }}
         /* Hide the 3-dot menu button */
         button[kind="header"] {{
-            display: none;
+            display: none !important;
         }}
         /* Make toolbar seamless */
         [data-testid="stToolbar"] {{
-            background-color: #111;
+            background-color: #111 !important;
+        }}
+        /* Force main content area */
+        [data-testid="stAppViewContainer"] {{
+            background-color: #111 !important;
+        }}
+        [data-testid="stMain"] {{
+            background-color: #111 !important;
         }}
         h1, h2, h3, h4, h5, h6 {{
             color: #E8E8E8;
