@@ -42,7 +42,7 @@ st.markdown(f"""
             background-color: #111 !important;
         }}
         section[data-testid="stSidebar"] {{
-            background-color: #252525 !important;
+            background-color: #000 !important;
         }}
         .stApp > header {{
             background-color: #111 !important;
